@@ -1,6 +1,6 @@
 # Refactoring.jl
 
-[![Build Status](https://travis-ci.com/jonathanBieler/Refactoring.jl.svg?branch=master)](https://travis-ci.com/jonathanBieler/Refactoring.jl)
+[![Build Status](https://travis-ci.org/jonathanBieler/Refactoring.jl.svg?branch=master)](https://travis-ci.org/jonathanBieler/Refactoring.jl)
 [![Coverage Status](https://coveralls.io/repos/github/jonathanBieler/Refactoring.jl/badge.svg?branch=master)](https://coveralls.io/github/jonathanBieler/Refactoring.jl?branch=master)
 
 ```julia
