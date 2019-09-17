@@ -2,5 +2,7 @@ using Refactoring
 using Test
 
 @testset "Refactoring.jl" begin
-    # Write your own tests here.
+    
+    include("test_extract_method.jl")
+
 end
