@@ -1,6 +1,6 @@
 using Test
 
-import Refactoring: econvert
+import Refactoring: econvert, variables, assignements
 
 @testset "extract method" begin
 
@@ -122,5 +122,13 @@ ex = quote
     end
 end
 @test unassigned_variables(ex) == [:umks, :P, :j, :d] 
+
+m = extract_method("x = sin(y)")
+@test m == 
+"
+function (y)
+    x = sin(y)
+end
+"
 
 end

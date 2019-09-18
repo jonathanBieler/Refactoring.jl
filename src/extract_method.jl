@@ -72,3 +72,37 @@ function filter_variable(s::Symbol)
     end
     true
 end
+
+function indent_body(body, tab)
+
+    lines = split(body,"\n")
+    ident_length = [length(l) - length(lstrip(l)) for l in lines]
+    line_length  = [length(l) for l in lines]
+    
+    min_ident = minimum( ident_length[line_length.>0] )
+     
+    lines = [tab * l[(1+min_ident):end] for l in lines]
+    
+    join(lines, "\n")
+end
+
+function extract_method(body, tab = "    ")
+
+    ex  = try 
+        ex = Base.parse_input_line(body)
+    catch err
+        println(err)
+        return ""
+    end
+    
+    args = unassigned_variables(ex)
+    sargs = join(args, ", ")
+    
+    body = indent_body(body, tab)
+        
+"
+function ($sargs)
+$body
+end
+"
+end

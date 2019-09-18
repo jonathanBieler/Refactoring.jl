@@ -3,9 +3,25 @@
 [![Build Status](https://travis-ci.org/jonathanBieler/Refactoring.jl.svg?branch=master)](https://travis-ci.org/jonathanBieler/Refactoring.jl)
 [![Coverage Status](https://coveralls.io/repos/github/jonathanBieler/Refactoring.jl/badge.svg?branch=master)](https://coveralls.io/github/jonathanBieler/Refactoring.jl?branch=master)
 
+### Extract method
+
 ```julia
 using Refactoring
 
+m = extract_method("
+    y = [sin(2xi + exp(-c)) for xi in x]
+")
+
+julia> print(m)
+function (c, x)
+    y = [sin(2xi + exp(-c)) for xi in x]
+end
+```
+
+To list the arguments of the method the variables that
+are unassigned in the block of code are listed:
+
+```julia
 ex = quote
     using Gadfly
     mu = K1

@@ -1,3 +1,8 @@
+# module TypedExpressions
+
+# export econvert
+# export AbstractExpr, ECall, EArgs, EAssignment, ETuple, EKeyword
+
 abstract type AbstractExpr end
 
 isa_expr(ex::Expr, ::Type{<:AbstractExpr}) = false
@@ -82,3 +87,5 @@ function econvert(::Type{T}, ex::EHanded) where T <: AbstractExpr
     ex = econvert(T, ex, ex.lhs)
     isa_expr(ex,T) ? T(ex) : ex
 end
+
+#end
