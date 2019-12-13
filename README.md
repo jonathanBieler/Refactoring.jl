@@ -18,8 +18,8 @@ function (c, x)
 end
 ```
 
-To list the arguments of the method the variables that
-are unassigned in the block of code are listed:
+The arguments of the method are guessed by listing the variables that
+are unassigned in the expression:
 
 ```julia
 ex = quote
