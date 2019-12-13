@@ -56,9 +56,22 @@ EKeyword(ex::EKeyword) = ex
 isa_expr(ex::Expr, ::Type{EKeyword}) = ex.head == :kw
 args(ex::EKeyword) = [ex.lhs; ex.rhs]
 
-const EExpr = [ECall, ETuple, EAssignment, EUsing, EKeyword]
+
+""" ERef """
+struct ERef <: AbstractExpr
+    lhs
+    rhs
+end
+ERef(ex::Expr) = ERef(ex.args[1],ex.args[2])
+ERef(ex::ERef) = ex
+isa_expr(ex::Expr, ::Type{ERef}) = (ex.head == :ref) && (length(ex.args) == 2)
+args(ex::ERef) = [ex.lhs; ex.rhs]
+
+#
+
+const EExpr = [ECall, ETuple, ERef, EAssignment, EUsing, EKeyword]#order matters (pobably a bug)
 const EArgs = Union{Expr, ECall, ETuple, EUsing}
-const EHanded = Union{EAssignment, EKeyword}
+const EHanded = Union{EAssignment, EKeyword, ERef}
 
 # I should maybe loop at each node instead of at the top
 function econvert(ex) 

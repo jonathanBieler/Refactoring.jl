@@ -21,6 +21,7 @@ end
 
 assignements(ex::EAssignment, lhs::Symbol, assigned) = push!(assigned, lhs)
 assignements(ex::EAssignment, lhs::ECall,  assigned) = push!(assigned, lhs.fun)
+assignements(ex::EAssignment, lhs::ERef,   assigned) = push!(assigned, lhs.lhs)
 assignements(ex::EAssignment, lhs::ETuple, assigned) = append!(assigned, lhs.args)
 
 ## variables

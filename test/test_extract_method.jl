@@ -123,6 +123,13 @@ ex = quote
 end
 @test unassigned_variables(ex) == [:umks, :P, :j, :d] 
 
+ex =  quote 
+    for var_idx = 1:length(pv_fp)
+        x[i] = 1
+    end
+end
+@test unassigned_variables(ex) == [:pv_fp, :i] 
+
 m = extract_method("x = sin(y)")
 @test m == 
 "
