@@ -8,5 +8,6 @@ using Test
     @test ex.lhs.rhs == :i
      
     include("test_extract_method.jl")
+    include("test_search_and_replace.jl")
 
 end

@@ -4,6 +4,8 @@ import Refactoring: econvert, variables, assignements
 
 @testset "extract method" begin
 
+eval_type = s -> @eval Main typeof($s)
+
 ex = Meta.parse("x = 1")
 ex = econvert(ex)
 @test variables(ex) == [:x]
@@ -31,12 +33,12 @@ end
 ex = econvert(ex)
 @test variables(ex) == [:x,:y,:z,:k,:c,:g,:d]
 @test assignements(ex) == [:x,:y,:z,:k,:g]
-@test unassigned_variables(ex) == [:c,:d]
+@test unassigned_variables(ex, eval_type) == [:c,:d]
 
 @test unassigned_variables(quote 
     x,y,z,k = 1,2,3,4
     g = x*y
-end) == Symbol[]
+end, eval_type) == Symbol[]
 
 if !@isdefined Geom
     @eval Main module Geom end
@@ -54,7 +56,7 @@ ex = quote
     ind, K7 = K6.asd
     x = [K8[K7] for i=1:K6]
 end
-@test unassigned_variables(ex) == [:K1,:K2,:K3,:K4,:K5,:K6,:K8] 
+@test unassigned_variables(ex, eval_type) == [:K1,:K2,:K3,:K4,:K5,:K6,:K8] 
 
 ex = quote
     pmin = pinit
@@ -63,50 +65,50 @@ ex = quote
     res = DiffBase.GradientResult(pmin)
     w = ones(length(pmin)); #w[1] *= 0.1
 end
-@test unassigned_variables(ex) == [:pinit, :Niter] 
+@test unassigned_variables(ex, eval_type) == [:pinit, :Niter] 
 
 ex = quote
     x = f(Int, Base, sin)
     y = cos(x)
 end
-@test unassigned_variables(ex) == [:sin]
+@test unassigned_variables(ex, eval_type) == [:sin]
 
 # comprehensions
 ex = quote
     x = [i for i=1:10]
 end
-@test unassigned_variables(ex) == []
+@test unassigned_variables(ex, eval_type) == []
 
 ex = quote
     x = [i for i=1:N]
 end
-@test unassigned_variables(ex) == [:N]
+@test unassigned_variables(ex, eval_type) == [:N]
 
 ex = quote
     x = [f(i,k) for i=1:length(N)]
 end
-@test unassigned_variables(ex) == [:k,:N]
+@test unassigned_variables(ex, eval_type) == [:k,:N]
 
 ex = quote
     f(x,y) = x*y + a
     ex = f(1,2)
 end
-@test unassigned_variables(ex) == [:a] 
+@test unassigned_variables(ex, eval_type) == [:a] 
 
 ex = quote
     sel  = df[Symbol("col")] .== "x"
 end
-@test unassigned_variables(ex) == [:df] 
+@test unassigned_variables(ex, eval_type) == [:df] 
 
 ex = quote
     sel  = df[Symbol(S)] .== "x"
 end
-@test unassigned_variables(ex) == [:df, :S] 
+@test unassigned_variables(ex, eval_type) == [:df, :S] 
 
 ex = quote
     sel  = df[Symbol(S)] .== x
 end
-@test unassigned_variables(ex) == [:df, :S, :x] 
+@test unassigned_variables(ex, eval_type) == [:df, :S, :x] 
 
 ex = quote
     for y in umks
@@ -121,14 +123,14 @@ ex = quote
         end
     end
 end
-@test unassigned_variables(ex) == [:umks, :P, :j, :d] 
+@test unassigned_variables(ex, eval_type) == [:umks, :P, :j, :d] 
 
 ex =  quote 
     for var_idx = 1:length(pv_fp)
         x[i] = 1
     end
 end
-@test unassigned_variables(ex) == [:pv_fp, :i] 
+@test unassigned_variables(ex, eval_type) == [:pv_fp, :i] 
 
 m = extract_method("x = sin(y)")
 @test m == 

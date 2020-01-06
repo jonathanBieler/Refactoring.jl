@@ -3,11 +3,18 @@ uuid = "d877f0ba-d93f-11e9-02e3-511b998c4f0a"
 authors = ["Jonathan Bieler <jonathan.bieler@alumni.epfl.ch>"]
 version = "0.1.0"
 
+[deps]
+CSTParser = "00ebfdb7-1f24-5e51-bd34-a7502290713f"
+MLStyle = "d8e11817-5142-5d16-987a-aa16d5891078"
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+
 [compat]
 julia = "1"
 
 [extras]
+MLStyle = "d8e11817-5142-5d16-987a-aa16d5891078"
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Test", "MLStyle", "MacroTools"]

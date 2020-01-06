@@ -45,3 +45,12 @@ julia> unassigned_variables(ex)
  :K6
  :K8
 ```
+
+### Search and replace
+
+Replace all sub-expressions matching a pattern with another :
+
+```julia
+julia> @search_and_replace sin(sin(x)) sin($x) cos($x +1)
+:(cos(cos(x + 1) + 1))
+```

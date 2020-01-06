@@ -30,12 +30,12 @@ variables(ex::Vector, vars) = begin map(x -> variables(x,vars), ex); unique(vars
 variables(ex, vars) = nothing
 
 # when we have an assignement switch to 4 args form
-function variables(ex::EAssignment, vars=[]) 
+function variables(ex::EAssignment, vars=[])
     variables(ex, ex.lhs, ex.rhs, vars)
     unique(vars)
 end
 # f(x,y) = x*y + C : ignore x and y
-function variables(ex::EAssignment, lhs::ECall, rhs, vars) 
+function variables(ex::EAssignment, lhs::ECall, rhs, vars)
     ignore = variables(lhs)
     rhs_vars = variables(rhs)
     append!(vars, setdiff(rhs_vars, ignore))
@@ -53,19 +53,19 @@ variables(ex::ECall,  vars)  = variables(ex.args, vars) #skip the function name
 variables(ex::EKeyword, vars) = variables(ex.rhs, vars) #skip the lhs
 variables(ex::EUsing, vars) = nothing
 
-function _unassigned_variables(ex)
+function _unassigned_variables(ex, eval_type)
     vars = variables(ex)
     assigned = assignements(ex)
 
     uvars = setdiff(vars, assigned)
-    filter(filter_variable, uvars)
+    filter(s -> filter_variable(s, eval_type), uvars)
 end
-unassigned_variables(ex::Expr) = _unassigned_variables(econvert(ex))
-unassigned_variables(ex::AbstractExpr) = _unassigned_variables(ex)
+unassigned_variables(ex::Expr, eval_type) = _unassigned_variables(econvert(ex), eval_type)
+unassigned_variables(ex::AbstractExpr, eval_type) = _unassigned_variables(ex, eval_type)
 
-function filter_variable(s::Symbol)
+function filter_variable(s::Symbol, eval_type)
     try
-        t = @eval Main typeof($s)
+        t = eval_type(s)
         t <: DataType && return false
         t <: Module && return false
         t <: Type && return false
@@ -87,7 +87,7 @@ function indent_body(body, tab)
     join(lines, "\n")
 end
 
-function extract_method(body, tab = "    ")
+function extract_method(body, tab = "    ", eval_type = s -> @eval Main typeof($s))
 
     ex  = try 
         ex = Base.parse_input_line(body)
@@ -96,7 +96,7 @@ function extract_method(body, tab = "    ")
         return ""
     end
     
-    args = unassigned_variables(ex)
+    args = unassigned_variables(ex, eval_type)
     sargs = join(args, ", ")
     
     body = indent_body(body, tab)
