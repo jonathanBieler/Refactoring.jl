@@ -35,10 +35,14 @@ ex = econvert(ex)
 @test assignements(ex) == [:x,:y,:z,:k,:g]
 @test unassigned_variables(ex, eval_type) == [:c,:d]
 
-@test unassigned_variables(quote 
+@test unassigned_variables(quote
     x,y,z,k = 1,2,3,4
     g = x*y
 end, eval_type) == Symbol[]
+
+@test unassigned_variables(quote  
+    x.a = b
+end, eval_type) == [:x,:b]
 
 if !@isdefined Geom
     @eval Main module Geom end

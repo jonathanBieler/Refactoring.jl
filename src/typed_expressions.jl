@@ -33,7 +33,7 @@ struct EAssignment <: AbstractExpr
     lhs
     rhs
 end
-EAssignment(ex::Expr) = EAssignment(ex.args[1],ex.args[2])
+EAssignment(ex::Expr) = EAssignment(ex.args[1], ex.args[2])
 EAssignment(ex::EAssignment) = ex
 isa_expr(ex::Expr, ::Type{EAssignment}) = ex.head == :(=)
 args(ex::EAssignment) = [ex.lhs; ex.rhs]
@@ -51,7 +51,7 @@ struct EKeyword <: AbstractExpr
     lhs
     rhs
 end
-EKeyword(ex::Expr) = EKeyword(ex.args[1],ex.args[2])
+EKeyword(ex::Expr) = EKeyword(ex.args[1], ex.args[2])
 EKeyword(ex::EKeyword) = ex
 isa_expr(ex::Expr, ::Type{EKeyword}) = ex.head == :kw
 args(ex::EKeyword) = [ex.lhs; ex.rhs]
@@ -62,16 +62,26 @@ struct ERef <: AbstractExpr
     lhs
     rhs
 end
-ERef(ex::Expr) = ERef(ex.args[1],ex.args[2])
+ERef(ex::Expr) = ERef(ex.args[1], ex.args[2])
 ERef(ex::ERef) = ex
 isa_expr(ex::Expr, ::Type{ERef}) = (ex.head == :ref) && (length(ex.args) == 2)
 args(ex::ERef) = [ex.lhs; ex.rhs]
 
+""" EDot """
+struct EDot <: AbstractExpr
+    lhs
+    rhs
+end
+EDot(ex::Expr) = EDot(ex.args[1], ex.args[2])
+EDot(ex::ERef) = ex
+isa_expr(ex::Expr, ::Type{EDot}) = (ex.head == :.) && (length(ex.args) == 2)
+args(ex::EDot) = [ex.lhs; ex.rhs]
+
 #
 
-const EExpr = [ECall, ETuple, ERef, EAssignment, EUsing, EKeyword]#order matters (pobably a bug)
+const EExpr = [ECall, ETuple, ERef, EDot, EAssignment, EUsing, EKeyword]#order matters (pobably a bug)
 const EArgs = Union{Expr, ECall, ETuple, EUsing}
-const EHanded = Union{EAssignment, EKeyword, ERef}
+const EHanded = Union{EAssignment, EKeyword, ERef, EDot}
 
 # I should maybe loop at each node instead of at the top
 function econvert(ex) 
