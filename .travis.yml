@@ -6,6 +6,12 @@ matrix:
        - language: julia
          julia: 1.0
          os: osx
+       - language: julia
+         julia: 1.3
+         os: linux
+       - language: julia
+         julia: 1.3
+         os: osx
 notifications:
     email: false
 after_success:
