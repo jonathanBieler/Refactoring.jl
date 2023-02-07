@@ -62,9 +62,13 @@ struct ERef <: AbstractExpr
     lhs
     rhs
 end
-ERef(ex::Expr) = ERef(ex.args[1], ex.args[2])
+ERef(ex::Expr) = begin
+    length(ex.args) == 1 && return ERef(ex.args[1], nothing)
+    length(ex.args) == 2 && return ERef(ex.args[1], ex.args[2])
+    ERef(ex.args[1], ex.args[2:end])
+end
 ERef(ex::ERef) = ex
-isa_expr(ex::Expr, ::Type{ERef}) = (ex.head == :ref) && (length(ex.args) == 2)
+isa_expr(ex::Expr, ::Type{ERef}) = (ex.head == :ref) #&& (length(ex.args) == 2)
 args(ex::ERef) = [ex.lhs; ex.rhs]
 
 """ EDot """
@@ -83,6 +87,7 @@ const EExpr = [ECall, ETuple, ERef, EDot, EAssignment, EUsing, EKeyword]#order m
 const EArgs = Union{Expr, ECall, ETuple, EUsing}
 const EHanded = Union{EAssignment, EKeyword, ERef, EDot}
 
+# go down the tree for each expression type and try to convert
 # I should maybe loop at each node instead of at the top
 function econvert(ex) 
     for E in EExpr
@@ -93,22 +98,30 @@ end
 
 econvert(::Type{<:AbstractExpr}, x) = x
 
+# for EArgs (including Expr), convert arguments, then convert expression
 function econvert(::Type{T}, ex::EArgs) where T <: AbstractExpr
-    ex = econvert(T, ex, ex.args)
-    isa_expr(ex,T) ? T(ex) : ex
+    ex = econvert_args(T, ex, ex.args, :args)
+    isa_expr(ex, T) ? T(ex) : ex
 end
-function econvert(::Type{T}, ex, args::Vector) where T <: AbstractExpr
-    for i in 1:length(ex.args)
-        ex.args[i] = econvert(T, ex.args[i])
+
+# for EHanded, convert both hands, then convert expression
+function econvert(::Type{T}, ex::EHanded) where T <: AbstractExpr
+    ex = econvert_args(T, ex, ex.rhs, :rhs)
+    ex = econvert_args(T, ex, ex.lhs, :lhs)
+    isa_expr(ex, T) ? T(ex) : ex
+end
+
+# args argument is just for dispatch, we want to loop over vectors only
+function econvert_args(::Type{T}, ex::EArgs, args::Vector, fieldname) where T <: AbstractExpr
+    v = getfield(ex, fieldname)
+    for i in 1:length(v)
+        v[i] = econvert(T, v[i])
     end
     ex
 end
-econvert(::Type{T}, ex, args) where T <: AbstractExpr = ex
+# do nothing for Symbols, Numbers, etc.
+econvert_args(::Type{T}, ex, args, fieldname) where T <: AbstractExpr = ex
 
-function econvert(::Type{T}, ex::EHanded) where T <: AbstractExpr
-    ex = econvert(T, ex, ex.rhs)
-    ex = econvert(T, ex, ex.lhs)
-    isa_expr(ex,T) ? T(ex) : ex
-end
+
 
 #end

@@ -136,6 +136,25 @@ ex =  quote
 end
 @test unassigned_variables(ex, eval_type) == [:pv_fp, :i] 
 
+ex = quote
+    for var_idx = 1:length(pv_fp)
+        x[i, 1] = 1
+    end
+end
+@test unassigned_variables(ex, eval_type) == [:pv_fp, :i]
+
+ex = quote
+    for var_idx = 1:length(pv_fp)
+        x[1, i] = 1
+    end
+end
+@test unassigned_variables(ex, eval_type) == [:pv_fp, :i]
+
+ex = quote
+    x[1, 1, i, rand(N)] = 1
+end
+@test unassigned_variables(ex, eval_type) == [:i, :N]
+
 m = extract_method("x = sin(y)")
 @test m == 
 "

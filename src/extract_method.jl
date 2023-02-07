@@ -19,14 +19,16 @@ function assignements(ex::EAssignment, assigned=[])
     unique(assigned)
 end
 
-assignements(ex::EAssignment, lhs::Symbol, assigned) = push!(assigned, lhs)
-assignements(ex::EAssignment, lhs::ECall,  assigned) = push!(assigned, lhs.fun)
-assignements(ex::EAssignment, lhs::ERef,   assigned) = push!(assigned, lhs.lhs)
+assignements(ex::EAssignment, lhs::Symbol, assigned) = push!(assigned, lhs) # x =
+assignements(ex::EAssignment, lhs::ECall,  assigned) = push!(assigned, lhs.fun) # f(x) =
+assignements(ex::EAssignment, lhs::ERef,   assigned) = push!(assigned, lhs.lhs) # x[] =
 assignements(ex::EAssignment, lhs::EDot,   assigned) = assigned #e.g. x.a = b, x is not assigned
-assignements(ex::EAssignment, lhs::ETuple, assigned) = append!(assigned, lhs.args)
+assignements(ex::EAssignment, lhs::ETuple, assigned) = append!(assigned, lhs.args) # (x,y) =
+assignements(ex::EAssignment, lhs::Expr, assigned) = begin end
+
 
 ## variables
-variables(ex::Union{Expr,AbstractExpr}, vars=[]) = begin map(x -> variables(x,vars), args(ex)); unique(vars) end
+variables(ex::Union{Expr,AbstractExpr}, vars=[]) = begin map(x -> variables(x, vars), args(ex)); unique(vars) end
 variables(ex::Vector, vars) = begin map(x -> variables(x,vars), ex); unique(vars) end
 variables(ex, vars) = nothing
 
@@ -51,7 +53,7 @@ end
 
 variables(ex::Symbol, vars) = push!(vars, ex)
 variables(ex::ECall,  vars)  = variables(ex.args, vars) #skip the function name
-variables(ex::EKeyword, vars) = variables(ex.rhs, vars) #skip the lhs
+variables(ex::EKeyword, vars) = variables(ex.rhs, vars) # f(x=y), x is local and shouldn't be listed
 variables(ex::EUsing, vars) = nothing
 
 function _unassigned_variables(ex, eval_type)
